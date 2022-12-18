@@ -17,19 +17,15 @@ import java.util.stream.Collectors;
 
 public class Day18 {
 
-	static boolean performTask2 = true;
-
 	public static final String SINGLE_CARRIAGE_RETURN_LINE_FEED = "(\\r\\n)";
 
-	private static Map<Coordinate, Voxel> coordinateVoxelMap;
+	private static final Map<Coordinate, Voxel> coordinateVoxelMap = new HashMap<>();
 
 	public static void main(String... args) throws IOException {
 		Path inputFile = Path.of("D:\\dev\\advent\\Day18Input.txt");
 		String inputString = Files.readString(inputFile);
 		String[] inputLines = inputString.split(SINGLE_CARRIAGE_RETURN_LINE_FEED);
 		List<String> stringList = Arrays.asList(inputLines);
-
-		coordinateVoxelMap = new HashMap<>();
 
 		for (String inputLine : stringList) {
 			String[] split = inputLine.split(",");
@@ -150,13 +146,9 @@ public class Day18 {
 
 	public record ExposedSide(Coordinate filled, Coordinate empty) {
 		public boolean isConnectedTo(ExposedSide other) {
-			return faceSameFilledSpace_notBlockedByDiagonal(other) // outer edge - might be blocked by diagonal
+			return (faceSameFilledSpace(other) && notBlockedByDiagonal(other))
 					|| faceSameEmptySpace(other)
 					|| areAdjacentOnSameSurface(other);
-		}
-
-		private boolean faceSameFilledSpace_notBlockedByDiagonal(ExposedSide other) {
-			return faceSameFilledSpace(other) && notBlockedByDiagonal(other); // outer edge - might be blocked by diagonal
 		}
 
 		private boolean faceSameFilledSpace(ExposedSide other) {
@@ -169,42 +161,13 @@ public class Day18 {
 						"Only check for blocking diagonals when exposed sides share the same filled space");
 			}
 
-			// get the deltas to move outside the shared filled space to the 2 different empty spaces
-			int thisXDiff = this.empty.x - this.filled.x;
-			int thisYDiff = this.empty.y - this.filled.y;
-			int thisZDiff = this.empty.z - this.filled.z;
-			int otherXDiff = other.empty.x - other.filled.x;
-			int otherYDiff = other.empty.y - other.filled.y;
-			int otherZDiff = other.empty.z - other.filled.z;
-
-			/*
-			For shared filled (2,2,2) with this.empty (2,3,2) and other.empty (3,2,2),
-			the diagonal coordinate to check for blocking is (3,3,2),
-			and the deltas are (0,+1,0) and (+1,0,0).
-			To arrive at the diagonal do (shared filled) + (this.delta) + (other.delta).
-
-			In reverse, shared filled will be (3,3,2), this.empty (2,3,2) and other.empty (3,2,2).
-			The deltas will be (-1,0,0) and (0,-1,0).
-			Performing (shared filled) + (this.delta) + (other.delta) -> (3,3,2) + (-1,0,0) + (0,-1,0) = (2,2,2)
-
-			Perhaps shorter route: this.empty + other.empty - shared filled?
-			this.empty (2,3,2) + other.empty (3,2,2) - shared filled (2,2,2)
-			(5,5,4) - (2,2,2) = (3,3,2)
-
-			 */
-
-			// combine the deltas to find the diagonal coordinate to check
-
-			int diagonalX = this.filled.x + thisXDiff + otherXDiff;
-			int diagonalY = this.filled.y + thisYDiff + otherYDiff;
-			int diagonalZ = this.filled.z + thisZDiff + otherZDiff;
+			int diagonalX = this.empty.x + other.empty.x - this.filled.x;
+			int diagonalY = this.empty.y + other.empty.y - this.filled.y;
+			int diagonalZ = this.empty.z + other.empty.z - this.filled.z;
 
 			Coordinate diagonal = new Coordinate(diagonalX, diagonalY, diagonalZ);
 
-			Voxel voxel = coordinateVoxelMap.get(diagonal);
-
-
-			return voxel == null;
+			return coordinateVoxelMap.get(diagonal) == null;
 		}
 
 		private boolean faceSameEmptySpace(ExposedSide other) {
@@ -217,14 +180,12 @@ public class Day18 {
 	}
 
 	public static class ExposedSideConnector {
-		private final Set<ExposedSide> allExposedSides;
 		private final Set<ExposedSide> unconnectedExposedSides;
 		private final List<Set<ExposedSide>> connectedExposedSides = new ArrayList<>();
 
 		private Set<ExposedSide> currentlyConnectingExposedSides;
 
 		public ExposedSideConnector(Set<ExposedSide> allExposedSides) {
-			this.allExposedSides = allExposedSides;
 			unconnectedExposedSides = new HashSet<>(allExposedSides);
 		}
 
