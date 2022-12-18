@@ -19,7 +19,7 @@ public class DayX {
 		List<String> stringList = Arrays.asList(inputLines);
 
 
-		System.out.println();
+		System.out.println(); // Set breakpoint for debugging
 	}
 
 
