@@ -26,16 +26,20 @@ import static advent.of.code.Day19.RobotBuildingOption.WAIT_FOR_ORE_ROBOT;
 
 public class Day19 {
 
-	static boolean performTask2 = false;
+	static boolean performTask2 = true;
 
 	public static final String SINGLE_CARRIAGE_RETURN_LINE_FEED = "(\\r\\n)";
 
 	public static void main(String... args) throws IOException {
-		Path exampleFile = Path.of("D:\\dev\\advent\\Day19Input.txt");
-		String exampleString = Files.readString(exampleFile);
-		List<String> exampleLines = Arrays.asList(exampleString.split(SINGLE_CARRIAGE_RETURN_LINE_FEED));
+		Path inputFile = Path.of("D:\\dev\\advent\\Day19Input.txt");
+		String inputString = Files.readString(inputFile);
+		List<String> inputLines = Arrays.asList(inputString.split(SINGLE_CARRIAGE_RETURN_LINE_FEED));
 
-		processInput(exampleLines);
+		if (performTask2) {
+			inputLines = inputLines.subList(0, 3);
+		}
+
+		processInput(inputLines);
 
 		System.out.println(); // Set breakpoint for debugging
 	}
@@ -43,7 +47,8 @@ public class Day19 {
 	private static void processInput(List<String> inputLines) {
 		List<BluePrint> bluePrints = inputLines.stream().map(BluePrint::ofInputLine).collect(Collectors.toList());
 
-		int totalQualityLevel = 0;
+		int totalQualityLevel = 0; // for Task 1
+		int multipliedAmountOfGeodes = 1; // for Task 2
 
 		for (BluePrint bluePrint : bluePrints) {
 			RobotBuildingSimulator simulator = new RobotBuildingSimulator(bluePrint);
@@ -55,10 +60,17 @@ public class Day19 {
 					+ " - Quality level: " + qualityLevel);
 
 			totalQualityLevel += qualityLevel;
+			if (performTask2) {
+				multipliedAmountOfGeodes *= geodesOpened;
+			}
 		}
 
-		System.out.println("Total quality level (answer to Task 1): " + totalQualityLevel);
-
+		if (performTask2) {
+			System.out.println("Multiplied amount of opened geodes (answer to Task 2): " + multipliedAmountOfGeodes);
+		}
+		else {
+			System.out.println("Total quality level (answer to Task 1): " + totalQualityLevel);
+		}
 	}
 
 	public enum RobotBuildingOption {
@@ -87,15 +99,17 @@ public class Day19 {
 
 		private final int[] maxGeodeRobots;
 		private final int[] maxGeodesOpened;
+		private final int maxTimeForTask;
 
 		private int geodesOpened;
 
 		public RobotBuildingSimulator(BluePrint bluePrint) {
 			this.bluePrint = bluePrint;
-			maxGeodeRobots = new int[25];
+			maxGeodeRobots = new int[33];
 			Arrays.fill(maxGeodeRobots, 0);
-			maxGeodesOpened = new int[25];
+			maxGeodesOpened = new int[33];
 			Arrays.fill(maxGeodesOpened, 0);
+			maxTimeForTask = performTask2 ? 32 : 24;
 		}
 
 		public void calculate() {
@@ -232,7 +246,7 @@ public class Day19 {
 			maxGeodesOpened[newTime] = Math.max(maxGeodesOpened[newTime], newInventory.geodesOpened);
 
 			ProcessNode nextNode = new ProcessNode(newTime, newOption, bluePrint, newInventory);
-			if (nextNode.time >= 24) {
+			if (nextNode.time >= maxTimeForTask) {
 				finishedNodes.add(nextNode);
 			} else {
 				processNodeQueue.add(nextNode);
