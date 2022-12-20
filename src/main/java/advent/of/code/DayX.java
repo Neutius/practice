@@ -7,10 +7,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DayX {
+	public static final String SINGLE_CARRIAGE_RETURN_LINE_FEED = "(\\r\\n)";
 
 	static boolean performTask2 = false;
-
-	public static final String SINGLE_CARRIAGE_RETURN_LINE_FEED = "(\\r\\n)";
 
 	public static void main(String... args) throws IOException {
 		Path inputFile = Path.of("D:\\dev\\advent\\Day###Input.txt");
