@@ -15,8 +15,7 @@ public class DayX {
 	public static void main(String... args) throws IOException {
 		Path inputFile = Path.of("D:\\dev\\advent\\Day###Input.txt");
 		String inputString = Files.readString(inputFile);
-		String[] inputLines = inputString.split(SINGLE_CARRIAGE_RETURN_LINE_FEED);
-		List<String> stringList = Arrays.asList(inputLines);
+		List<String> inputLines = Arrays.asList(inputString.split(SINGLE_CARRIAGE_RETURN_LINE_FEED));
 
 
 		System.out.println(); // Set breakpoint for debugging
