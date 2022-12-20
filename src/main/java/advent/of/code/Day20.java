@@ -84,16 +84,22 @@ public class Day20 {
 	private static int getNewIndex(int inputSize, int maxIndex, NumberPosition current, int currentIndex) {
 		int newIndex = currentIndex + current.numberValue;
 		while (newIndex < 0) {
-			newIndex += inputSize;
+			newIndex += maxIndex;
 		}
 		while (newIndex > maxIndex) {
-			newIndex -= inputSize;
+			newIndex -= maxIndex;
 		}
 		return newIndex;
 		/* Calculate new index (with inputSize 5000 and maxIndex 4999):
 		 	if current index is 2 and value is 2, then new index is 4
-		 	if current index is 4999 and value is 1, then new index is 0 (so if above 4999, do -5000 to wrap around)
-		 	if current index is 0 and value is -1, then new index is 4999 (so if below 0, do +5000 to wrap around)
+
+		 	WRONG (thanks to u/DrunkHacker for pointing at my mistake):
+		 		if current index is 4999 and value is 1, then new index is 0 (so if above 4999, do -5000 to wrap around)
+		 		if current index is 0 and value is -1, then new index is 4999 (so if below 0, do +5000 to wrap around)
+		 	CORRECT:
+		 		if current index is 4999 and value is 1, then new index is 1 (so if above 4999, do -4999 to wrap around)
+		 		if current index is 0 and value is -1, then new index is 4998 (so if below 0, do +4999 to wrap around)
+		 	the list loops around, so moving an item from index 0 to index 4999 (or vice versa) is not a move at all.
 		 */
 	}
 
